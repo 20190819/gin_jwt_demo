@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/yangliang4488/gin_jwt_demo/app/models"
+	modelUser "github.com/yangliang4488/gin_jwt_demo/app/models/user"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -37,7 +37,7 @@ func connections() (mysqlDB *gorm.DB) {
 }
 
 func migrations(db *gorm.DB) {
-	err := db.AutoMigrate(&models.User{})
+	err := db.AutoMigrate(&modelUser.User{})
 	if err != nil {
 		logrus.Error("migrations 出错")
 		return
