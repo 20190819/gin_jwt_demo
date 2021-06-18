@@ -10,13 +10,16 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	// 注册中间件
-	r.Use(middlewareAuth.Api())
+	demo:=r.Group("/",middlewareAuth.Api())
+	{
+		r.POST("/register", controllers.Register)
+		r.POST("/login", controllers.Login)
+		demo.GET("/home", controllers.Home)
+	}
 
-	r.POST("/register",controllers.Register)
-	r.POST("/login",controllers.Login)
 	return r
 }
-func init(){
+func init() {
 	r := SetupRouter()
 	if err := r.Run(":9090"); err != nil {
 		fmt.Println("startup service failed, err:%v\n", err)

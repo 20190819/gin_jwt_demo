@@ -1,12 +1,12 @@
 package database
 
 import (
-	"time"
-
 	"github.com/sirupsen/logrus"
 	modelUser "github.com/yangliang4488/gin_jwt_demo/app/models/user"
+	"github.com/yangliang4488/gin_jwt_demo/config/app"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"time"
 )
 
 var MysqlDB *gorm.DB
@@ -20,9 +20,17 @@ func init() {
 	migrations(mysqlDB)
 }
 
+var dbDriver string =app.Config("database","DRIVER")
+var dbHost string =app.Config("database","HOST")
+var dbPort string =app.Config("database","PORT")
+var dbUsername string =app.Config("database","USERNAME")
+var dbPassword string =app.Config("database","PASSWORD")
+var dbDatabaseName string =app.Config("database","database")
+
 func connections() (mysqlDB *gorm.DB) {
 	config := mysql.New(mysql.Config{
-		DSN: "root:123456@tcp(127.0.0.1:3308)/gin_jwt_demo?charset=utf8&parseTime=True&loc=Local",
+		DriverName:dbDriver,
+		DSN: dbUsername+":"+dbPassword+"@tcp("+dbHost+":"+dbPort+")/"+dbDatabaseName+"?charset=utf8&parseTime=True&loc=Local",
 	})
 	mysqlDB, err := gorm.Open(config, &gorm.Config{})
 	if err != nil {

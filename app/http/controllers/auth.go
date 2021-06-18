@@ -16,7 +16,7 @@ func Register(ctx *gin.Context) {
 
 	email := ctx.PostForm("email")
 	password := ctx.PostForm("password")
-	if email == "" || password == "" {
+		if email == "" || password == "" {
 		ctx.JSON(http.StatusOK, gin.H{
 			"code": -1,
 			"msg":  "信息不完整",
