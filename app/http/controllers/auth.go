@@ -1,18 +1,18 @@
 package controllers
 
 import (
+	"github.com/yangliang4488/gin_jwt_demo/config/database"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	modelUser "github.com/yangliang4488/gin_jwt_demo/app/models/user"
 	serviceUser "github.com/yangliang4488/gin_jwt_demo/app/services/user_service"
-	"github.com/yangliang4488/gin_jwt_demo/config"
 )
 
 // 注册
 func Register(ctx *gin.Context) {
 	user := modelUser.User{}
-	mysqldb := config.MysqlDB
+	mysqldb := database.MysqlDB
 
 	email := ctx.PostForm("email")
 	password := ctx.PostForm("password")
@@ -33,6 +33,8 @@ func Register(ctx *gin.Context) {
 			return
 		}
 		// 注册
+		user.Email = email
+		user.Password = modelUser.Hash(password)
 		res := mysqldb.Create(&user)
 		if res.RowsAffected > 0 {
 			ctx.JSON(http.StatusOK, gin.H{
@@ -56,7 +58,7 @@ func Login(ctx *gin.Context) {
 		return
 	} else {
 		user := modelUser.User{}
-		mysqldb := config.MysqlDB
+		mysqldb := database.MysqlDB
 		mysqldb.Where("email=?", email).First(&user)
 		res := modelUser.Checkhash(password, user.Password)
 		if !res || user.Email == "" {
@@ -67,20 +69,22 @@ func Login(ctx *gin.Context) {
 			return
 		} else {
 			// 登录成功，生成 token
-			token := serviceUser.CreateToken(email)
+			token,ok := serviceUser.CreateToken(email)
+			if !ok{
+				ctx.JSON(http.StatusForbidden, gin.H{
+					"code":  -1,
+					"msg":   "登录失败",
+				})
+				return
+			}
 			// 返回结果
 			ctx.JSON(http.StatusOK, gin.H{
 				"code":  -1,
-				"msg":   "信息不完整",
+				"msg":   "操作成功",
 				"token": token,
 				"user":  user,
 			})
 		}
 
 	}
-}
-
-// 生成 token
-func CreateToken(ctx *gin.Context) {
-	//
 }

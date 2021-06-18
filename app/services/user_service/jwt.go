@@ -1,20 +1,23 @@
 package userservice
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/sirupsen/logrus"
 )
 
-var jwtKey = []byte("yangliang4488")
+var jwtKey = []byte("secret")
 
 type Claims struct {
-	Email string
+	Email string `json:"email"`
 	jwt.StandardClaims
 }
 
-func CreateToken(email string) string {
+func CreateToken(email string) (string, bool) {
+	defer func() {
+		fmt.Println("jwt token 创建异常", recover())
+	}()
 	ttl := time.Now().Add(time.Minute * 5)
 	clamis := &Claims{
 		Email: email,
@@ -22,12 +25,19 @@ func CreateToken(email string) string {
 			ExpiresAt: ttl.Unix(),
 		},
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, clamis)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, clamis)
 	str, err := token.SignedString(jwtKey)
 	if err != nil {
-		logrus.Errorf("token 创建失败:%v\n", err)
-		return ""
+		panic(err)
 	} else {
-		return str
+		return str, true
 	}
+}
+
+func ParseToken(tokenStr string) (*jwt.Token, *Claims, error) {
+	currentClaims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenStr, currentClaims, func(token *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
+	})
+	return token, currentClaims, err
 }
