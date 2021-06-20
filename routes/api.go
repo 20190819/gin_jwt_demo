@@ -1,16 +1,17 @@
 package routes
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"github.com/yangliang4488/gin_jwt_demo/app/http/controllers"
 	middlewareAuth "github.com/yangliang4488/gin_jwt_demo/app/http/middlewares/auth"
+	"github.com/yangliang4488/gin_jwt_demo/config/app"
 )
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	// 注册中间件
-	demo:=r.Group("/",middlewareAuth.Api())
+	demo := r.Group("/", middlewareAuth.Api())
 	{
 		r.POST("/register", controllers.Register)
 		r.POST("/login", controllers.Login)
@@ -21,7 +22,7 @@ func SetupRouter() *gin.Engine {
 }
 func init() {
 	r := SetupRouter()
-	if err := r.Run(":9090"); err != nil {
-		fmt.Println("startup service failed, err:%v\n", err)
+	if err := r.Run(":" + app.Config("app", "SERVER_PORT")); err != nil {
+		logrus.Errorf("startup service failed, err:%v\n", err)
 	}
 }
