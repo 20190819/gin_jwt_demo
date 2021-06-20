@@ -3,7 +3,6 @@
 - gin + gorm + jwt 
 
 #### 快速使用
-- 方式一：
 ```code
 copy env.ini.example env.ini
 
